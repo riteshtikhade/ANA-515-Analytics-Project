@@ -1,0 +1,57 @@
+
+#1. Moved csv From(https://www.kaggle.com/datasets/shwetabh123/mall-customers) to location and import data in R
+library(tidyverse)
+my_mall_data <- read.csv("Mall_Customers.csv")
+head(my_mall_data)
+summary(my_mall_data)
+str(my_mall_data)
+names(my_mall_data)
+
+#Histogram of the Age distribution of the Mall_customer data.
+hist(my_mall_data$Age, main="Hostogram of Age distribution", xlab= "Age", col= "cyan", labels=TRUE)
+#Histogram of the Gender Comparision of the Mall_customer data.
+a=table(my_mall_data$Genre)
+barplot(a,main="Histogram of Gender Comparision",ylab="Count",xlab="Gender",col=rainbow(2),
+       legend=rownames(a)).
+
+#Histogram of the Annual.Income of the Mall_customer data.       
+hist(my_mall_data$Annual.Income..k.., main="Hostogram of Annual.Income", xlab= "Annual Income (k$)", col= "blue", labels=TRUE)  
+
+#Histogram of the Annual.Income of the Mall_customer data.
+hist(my_mall_data$Spending.Score..1.100., main="Hostogram of Spending Score (1-100)", xlab= "Spending Score (1-100)", col= "red", labels=TRUE)
+
+library(purrr)
+set.seed(123)
+# function to calculate total intra-cluster sum of square 
+iss <- function(k) {
+  kmeans(my_mall_data[,3:5],k,iter.max=100,nstart=100,algorithm="Lloyd" )$tot.withinss
+}
+
+k.values <- 1:10
+
+iss_values <- map_dbl(k.values, iss)
+
+plot(k.values, iss_values,
+    type="b", pch = 19, frame = FALSE, 
+    xlab="Number of K clusters ",
+    ylab="Total intra-clusters sum of squares")
+    
+    
+k6<-kmeans(my_mall_data[,3:5],6,iter.max=100,nstart=50,algorithm="Lloyd")    
+    
+#Visualization of Clustering Results
+
+Vclust=prcomp(my_mall_data[,3:5],scale=FALSE) 
+summary(Vclust)
+Vclust$rotation[,1:2]
+
+
+set.seed(1)
+library(ggplot2)
+ggplot(my_mall_data, aes(x =Annual.Income..k.., y = Spending.Score..1.100.)) + 
+  geom_point(stat = "identity", aes(color = as.factor(k6$cluster))) +
+  scale_color_discrete(name=" ",breaks=c("1", "2", "3", "4", "5","6"),
+  labels=c("Cluster 1", "Cluster 2", "Cluster 3", "Cluster 4", "Cluster 5","Cluster 6")) +
+  ggtitle("Segments of Mall Customer using K-means Clustering")   
+
+       
